@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.mapper.CustomersMapper">
+
+	<select id="customerInfo"
+		resultType="com.human.domain.CustomersDto">
+
+		select * from customers where customerID = #{customerID}
+
+	</select>
+
+	<update id="customerInfoUpdate">
+
+		update customers set companyName = #{companyName}, contactName =
+		#{contactName}, contactTitle = #{contactTitle},
+		address = #{address}, city = #{city}, region = #{region}, postalCode =
+		#{postalCode}, country = #{country},
+		phone = #{phone}, fax = #{fax} where customerID = #{customerID}
+
+	</update>
+	
+	<insert id="customerInsert">
+		insert into customers(customerid,companyName, phone) values (#{customerID},'noCompany' ,#{phone})
+	</insert>
+
+</mapper>

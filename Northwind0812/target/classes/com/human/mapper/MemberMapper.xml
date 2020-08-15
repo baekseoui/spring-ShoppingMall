@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.human.mapper.MemberMapper">
+
+
+	<resultMap type="com.human.domain.MemberDto" id="memberMap">
+		<id property="newID" column="newid" />
+		<result property="newID" column="newid" />
+		<result property="newPw" column="newpw" />
+		<result property="newName" column="newname" />
+		<result property="newNum" column="newnum" />
+		<result property="newDate" column="newdate" />
+		<result property="newPhone" column="newphone" />
+		<result property="newEmail" column="newemail" />
+		<result property="newRank" column="newrank" />
+		<result property="newDel" column="newdel" />
+		<result property="newEtc1" column="newetc1" />
+		<collection property="authList" resultMap="authMap">
+		</collection>
+	</resultMap>
+
+	<resultMap id="authMap" type="com.human.domain.AuthVO">
+
+		<result column="userid" property="userid" />
+		<result column="auth" property="auth" />
+
+	</resultMap>
+
+	<select id="read" resultMap="memberMap">SELECT mem.newid, mem.newpw,
+		mem.newnum, mem.newdate, mem.newphone, mem.newemail, mem.newrank,
+		mem.newdel, mem.newetc1 FROM newcustomer mem LEFT OUTER JOIN
+		newcustomer_auth auth on mem.newid = auth.userid WHERE mem.newid =
+		#{newID}
+	</select>
+
+	<select id="getID" resultType="com.human.domain.MemberDto">select newID from newcustomer
+	</select>
+
+	<select id="findID" resultType="com.human.domain.MemberDto">
+		select newID from newcustomer
+		where newName = #{newName} and newEmail =
+		#{newEmail}
+	</select>
+
+	<select id="findPwd" resultType="com.human.domain.MemberDto"> <!-- id는 MemberServiceImpl 파일의 메소드 이름이다. 일치해야한다. -->
+		select newpw from newcustomer where newID = #{newID} and newName =
+		#{newName} and newEmail = #{newEmail}
+	</select>
+
+	<select id="checkId" parameterType="String" resultType="int">
+		select count(*) from newcustomer where newId = #{newID}
+	</select>
+
+	<insert id="insertNewJoin">
+		insert into newCustomer	values(SEQ_newCustomer.nextval, #{newID}, #{newPw},
+		#{newName},	#{newDate}, #{newPhone}, #{newEmail}, 'USER','n', '0')
+	</insert>
+
+	<update id="update">
+		update newcustomer set newpw= #{newPw} where newid=
+		#{newID}
+	</update>
+
+	<insert id="fileUpload">insert into FILE_BOARD(fileNo, boardNum, fileOrgName,
+		fileNewName, fileSize) values(SEQ_BOARD_FILE.nextval,
+		SEQ_BOARD.currval,#{fileOrgName},#{fileNewName},#{fileSize})
+	</insert>
+
+	<insert id="writeBoard">insert into board(boardNum, boardOption, boardTitle,
+		customerID, boardContent, boardGroup, productID, BOARDETC1 ) values
+		(SEQ_BOARD.nextval,#{boardOption},#{boardTitle},#{customerID},#{boardContent},
+		SEQ_BOARD.currval,#{productID},'상품문의')
+	</insert>
+
+	<select id="Select_orderDto"
+		resultType="com.human.domain.Select_orderDto"><![CDATA[select * from(select rownum m, x.* from(select b.orderid ,c.quantity, c.unitprice, d.productname, d.picture,c.productid from customers a,orders b,orderdetails c,products d,newcustomer e where a.customerid=e.newid and e.newid=#{id} and a.customerid=b.customerid and b.orderid=c.orderid and c.productid=d.productid order by rownum desc) x where rownum <= #{page} * #{pageDataCount} order by m asc) where m>=( #{page} -1) * #{pageDataCount}+1]]></select>
+
+	<select id="ordersDateCount" resultType="int">select count(*) from
+		orders where customerID=#{id}</select>
+
+	<select id="listCart2" resultType="com.human.domain.CartVO"><![CDATA[select * from(select rownum as rn, b.* from(select * from cart order by cartid desc) b where rownum <= #{page} * #{pageDataCount} and userid=#{id}) where rn >= ( #{page} - 1) * #{pageDataCount} + 1 ]]></select>
+
+	<select id="cartDateCount" resultType="int">select count(cartid)
+		bCount from cart where userid=#{id}</select>
+
+	<insert id="writeBoard_customer_inquiry">insert into board(boardNum, boardOption, boardTitle,
+		customerID, boardContent, boardGroup, productID, BOARDETC1 ) values
+		(SEQ_BOARD.nextval,#{boardOption},#{boardTitle},#{customerID},#{boardContent},SEQ_BOARD.currval,#{productID},'일대일문의')
+	</insert>
+</mapper>

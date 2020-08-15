@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- by 재령 -->
+	<!-- 패스워드 bcrypt 형식으로 변환하는 방법 찾아서 변경예정 -->
+
+	<bean id="customAccessDenied"
+		class="com.human.security.CustomAccessDeniedHandler"></bean>
+
+	<bean id="customAuthenticationSuccessHandler"
+		class="com.human.security.CustomAuthenticationSuccessHandler">
+		<property name="targetUrlParameter" value="loginRedirect" />
+		<property name="useReferer" value="false" />
+		<property name="defaultUrl" value="/" />
+	</bean> 
+
+	<!-- <bean id="customizeAuthenticationSuccessHandler"
+		class="com.human.security.CustomizeAuthenticationSuccessHandler">
+		<property name="loginIdName" value="user_id" />
+		<property name="defaultUrl" value="/" />
+	</bean> -->
+
+	<!-- <bean id="customLoginSuccess" class="com.human.security.CustomLoginSuccessHandler"></bean> -->
+
+	<!-- <bean id="customPasswordEncoder" class="com.human.security.CustomNoOpPasswordEncoder"></bean> -->
+
+	<bean id="bcryptPasswordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
+
+	<bean id="customUserDetailsService"
+		class="com.human.security.CustomUserDetailsService"></bean>
+
+	<security:http>
+		<!-- 페이지별 권한 부여 -->
+		<!-- <security:intercept-url pattern="/myPage/index" access="hasRole('USER')" 
+			/> -->
+
+		<!-- <security:intercept-url pattern="/manager/employees" access="hasRole('ADMIN')" 
+			/> -->
+
+		<security:access-denied-handler
+			ref="customAccessDenied" />
+
+		<security:form-login
+			login-page="/member/mainLoginPage" default-target-url="/main/main"
+			authentication-success-handler-ref="customAuthenticationSuccessHandler" />
+
+		<security:logout logout-url="/member/customLogout"
+			logout-success-url="/main/main" invalidate-session="true"
+			delete-cookies="remember-me,JSESSION_ID" />
+
+		<!-- <security:csrf disabled="true"/>  -->
+	</security:http>
+
+	<security:authentication-manager>
+		<!-- <security:authentication-provider> <security:jdbc-user-service data-source-ref="dataSource" 
+			users-by-username-query="select newid , newpw , newrank from newcustomer 
+			where newid = ? " authorities-by-username-query="select userid, auth from 
+			tbl_member_auth where userid = ? " /> -->
+		<security:authentication-provider
+			user-service-ref="customUserDetailsService">
+			<!-- <security:password-encoder ref="customPasswordEncoder" /> -->
+
+			<security:password-encoder
+				ref="bcryptPasswordEncoder" />
+
+		</security:authentication-provider>
+
+	</security:authentication-manager>
+
+	<!-- <security:http> <security:intercept-url pattern="/sample/all" access="permitAll" 
+		/> <security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')" 
+		/> <security:intercept-url pattern="/sample/admin" access="hasRole('ROLE_ADMIN')" 
+		/> <security:remember-me data-source-ref="dataSource" token-validity-seconds="604800" 
+		/> <security:logout logout-url="/customLogout" invalidate-session="true" 
+		delete-cookies="remember-me,JSESSION_ID" /> </security:http> <security:authentication-manager> 
+		<security:authentication-provider> <security:user-service> <security:user 
+		name="member" password="{noop}member" authorities="ROLE_MEMBER"/> <security:user 
+		name="admin" password="{noop}admin" authorities="ROLE_MEMBER, ROLE_ADMIN"/> 
+		</security:user-service> </security:authentication-provider> </security:authentication-manager> 
+		<security:authentication-manager> <security:authentication-provider> <security:jdbc-user-service 
+		data-source-ref="dataSource" /> <security:jdbc-user-service data-source-ref="dataSource" 
+		users-by-username-query="select userid , userpw , enabled from tbl_member 
+		where userid = ? " authorities-by-username-query="select userid, auth from 
+		tbl_member_auth where userid = ? " /> <security:password-encoder ref="customPasswordEncoder" 
+		/> <security:password-encoder ref="bcryptPasswordEncoder" /> </security:authentication-provider> 
+		</security:authentication-manager> <security:authentication-manager> <security:authentication-provider 
+		user-service-ref="customUserDetailsService"> <security:password-encoder ref="bcryptPasswordEncoder" 
+		/> </security:authentication-provider> </security:authentication-manager> -->
+</beans>

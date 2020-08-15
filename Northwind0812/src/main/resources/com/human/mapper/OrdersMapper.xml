@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.mapper.OrdersMapper">
+
+	<insert id="ordersInsert">
+
+		insert into orders(orderid, customerid, orderdate, requireddate,
+		shippeddate, shipaddress, shipcity, shipregion, shippostalcode,
+		shipcountry)
+		values(order_seq.nextval,#{customerID},to_date(sysdate,'yy-MM-dd
+		hh24:mi:ss'),null,null,#{shipAddress}, #{shipCity}, #{shipRegion},
+		#{shipPostalCode}, #{shipCountry})
+
+	</insert>
+
+	<select id="orderSelectDesc"
+		resultType="com.human.domain.OrdersDto">
+
+		select * from orders order by orderid desc
+
+	</select>
+
+	<insert id="orderDetailsInsert">
+
+		INSERT INTO OrderDetails VALUES (#{orderID}, #{productID}, #{unitPrice},
+		#{quantity}, 0)
+	</insert>
+
+	<insert id="insert">
+		insert into orders(orderid, customerid, orderdate,
+		requireddate, shippeddate, shipaddress,
+		shipcity, shipregion, shippostalcode, shipcountry)
+		values(order_seq.nextval,#{customerID},to_date(sysdate,'yy-MM-dd
+		hh24:mi:ss'),
+		to_date(trunc(sysdate+30),'yy-MM-dd hh24:mi:ss'),
+		to_date(trunc(sysdate+14),'yy-MM-dd hh24:mi:ss'),
+		#{shipAddress},#{shipCity},#{shipRegion},#{shipPostalCode},#{shipCountry})
+	</insert>
+
+	<update id="update">
+		update orders set customerID=#{customerID} where
+		orderID=#{orderID}
+	</update>
+
+	<!-- <select id="selectOrders" resultType="String"> <foreach collection='oidList' 
+		index='index' item='item' separator=','> select * from orders where orderid=#{oidList.get(index)} 
+		order by orderid desc </foreach> </select> -->
+
+
+
+	<select id="getOrder" resultType="com.human.domain.OrdersDto"
+		parameterType="map">
+		select * from orders where orderid=#{orderId} and
+		customerid= #{userID}
+	</select>
+
+	<select id="getProduct"
+		resultType="com.human.domain.ProductsDto">
+		select * from products where productid=#{productID}
+	</select>
+	
+	
+</mapper>

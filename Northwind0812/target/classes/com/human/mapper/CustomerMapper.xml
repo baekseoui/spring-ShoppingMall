@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.mapper.CustomerMapper">
+	<select id="orderSelect" resultType="com.human.domain.ReviewDto">
+		select
+		o.orderid,o.customerid,o.orderdate,od.productid,p.productname,p.picture
+		from orders o, orderdetails od, products p
+		where
+		od.productid=p.productid and o.orderid=od.orderid and
+		o.customerid=#{userID}
+		order by o.orderdate desc
+	</select>
+
+	<select id="reviewListSelect"
+		resultType="com.human.domain.ReviewDto">
+		select b.boardnum, p.productName, p.picture, b.customerid,
+		b.boardcontent, b.boarddate, b.productid from products p,board b where
+		b.productid=p.productid and b.productid= #{productId} and
+		b.boardEtc1='상품평'
+	</select>
+
+	<select id="reviewListFileSelect"
+		resultType="com.human.domain.ReviewDto">
+		select b.boardnum,
+		p.productName,p.picture,b.customerid,b.boardcontent,b.boarddate,
+		b.productid,f.filenewname from products p,board b, file_board f where
+		b.productid=p.productid and b.productid=#{productId} and
+		b.boardnum=f.boardnum
+
+	</select>
+
+	<select id="reviewSelect"
+		resultType="com.human.domain.ReviewDto">
+		select b.boardNum,
+		o.orderid,o.customerid,od.productid,p.productname,p.picture,
+		b.boardtitle,b.boardcontent,b.boarddate from orders o,orderdetails
+		od,products p,board b where o.orderid=od.orderid and
+		od.productid=p.productid and b.productid=od.productid and
+		o.customerid=#{userID} and b.customerid=#{userID} and
+		b.orderid=o.orderid order by b.boardnum desc
+
+	</select>
+
+	<select id="reviewFileSelect"
+		resultType="com.human.domain.ReviewDto">
+		select b.boardNum, o.orderid,o.customerid,od.productid
+		,p.productname,p.picture,f.filenewname,
+		b.boardtitle,b.boardcontent,b.boarddate from orders o,orderdetails
+		od,products p,board b,file_board f where o.orderid=od.orderid and
+		od.productid=p.productid and b.productid=od.productid and
+		o.customerid=#{userID} and b.customerid=#{userID} and
+		b.orderid=o.orderid and b.boardnum=f.boardnum
+	</select>
+
+	<select id="reviewContentSelect" parameterType="String"
+		resultType="com.human.domain.ReviewDto">
+		select b.boardNum, o.orderid,o.customerid,od.productid
+		,p.productname,p.picture, b.boardtitle,b.boardcontent,b.boarddate from
+		orders o,orderDetails od,products p,board b where o.orderid=od.orderid
+		and od.productid=p.productid and b.productid=od.productid and
+		o.customerid=#{userID} and b.boardnum=#{boardNum} and b.orderID=o.orderID
+	</select>
+
+	<delete id="ReviewDelete">
+		delete board where boardNum=#{boardNum}
+	</delete>
+
+	<update id="ReviewUpdate">
+		UPDATE board set boardContent=#{boardContent},
+		boardDate=SYSDATE where boardNum=#{boardNum}
+	</update>
+
+	<insert id="fileUpload">insert into FILE_BOARD(fileNo, boardNum, fileOrgName,
+		fileNewName, fileSize) values(SEQ_BOARD_FILE.nextval,
+		SEQ_BOARD.currval,#{fileOrgName},#{fileNewName},#{fileSize})
+	</insert>
+
+	<insert id="ReviewInsert">
+		insert into
+		board(boardNum,boardOption,boardTitle,customerID,boardDate,boardContent,orderID,productID,boardDel,boardetc1)
+		values(SEQ_BOARD.nextval,'상품','상품평작성',#{userID},SYSDATE,#{boardContent},#{orderID},#{productID},'N','상품평')
+	</insert>
+
+	<select id="select" resultType="com.human.domain.LookupDateDto">
+	<![CDATA[
+	select * from lookupdate where customerid = #{customerid}
+	]]>
+	</select>
+
+	<select id="selectDate"
+		resultType="com.human.domain.LookupDateDto" parameterType="map">
+	<![CDATA[
+	select * from lookupdate where customerID = #{LookupDateDto.customerID} 
+	and applicationdate > (select ADD_MONTHS(SYSDATE,-(#{listIndex})) from dual)
+	]]>
+	</select>
+	
+	<select id="selectDateOrderID"
+		resultType="com.human.domain.LookupDateDto">
+	select * from LookupDate where 
+	orderID=#{orderID} and customerID=#{customerID}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO lookupdate(customerid, orderid, applicationdate, finishdate, type) 
+		VALUES(#{customerid}, #{orderid}, #{applicationdate}, #{finishdate}, #{type})
+	</insert>
+	
+	<select id="getUser" resultType="com.human.domain.CustomersDto">
+		select * from customers where customerid=#{customerId}
+	</select>
+</mapper>

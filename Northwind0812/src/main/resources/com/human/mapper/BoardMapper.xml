@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.human.mapper.BoardMapper">
+
+	<!-- <select id="getList" resultType="com.human.domain.BoardDto"> <![CDATA[ 
+		select * from board where customerID=#{} ]]> </select> -->
+
+	<!-- <select id="select1By1" resultType="com.human.domain.BoardProductDto"> 
+		<![CDATA[ select * from (select /*+INDEX_DESC(board,boardnum)*/ rownum rn, 
+		sub. * from (select * from board b left join products p on b.productID=p.productID 
+		order by boardnum desc) sub where rownum <= #{page} * #{pageDataCount} and 
+		customerID = #{customerID} and boardEtc1 = '일대일문의') where rn>= ( #{page}-1 
+		) * #{pageDataCount} +1 ]]> </select> -->
+
+	<select id="replySelect" resultType="com.human.domain.BoardDto">
+		select b.boardGroup,
+		b.boardStep, b.boardDate, b.boardContent from board b, newCustomer n
+		where b.customerID=n.newID and n.newRank like 'ADMIN'
+	</select>
+
+	<select id="select1By1"
+		resultType="com.human.domain.BoardProductDto">
+	<![CDATA[ select * from	(select rownum rn, sub.* from (select b.boardnum, b.boardoption, b.boardanswered, b.boardTitle, b.customerID,
+    b.boardDate, b.boardContent, b.boardGroup, p.productID, b.boardEtc1, 
+    p.productName, p.picture from board b 
+    left join products p on b.productID = p.productID order by boardnum desc) sub 
+    where rownum <= #{page} * #{perPageNum} and customerID = #{customerID} and boardEtc1 = '일대일문의') 
+    where rn >= ( #{page} -1 ) * #{perPageNum} +1	]]>
+	</select>
+
+	<select id="countPaging" resultType="int">
+
+	<![CDATA[ select count(boardnum) from board where boardnum > 0 and customerID = #{userID} and boardEtc1 = '일대일문의' ]]>
+
+	</select>
+	
+	<select id="countPaging2" resultType="int">
+
+	<![CDATA[ select count(boardnum) from board where boardnum > 0 and customerID = #{userID} and boardEtc1 = '상품문의' ]]>
+
+	</select>
+
+	<select id="notice" resultType="com.human.domain.BoardDto">
+	<![CDATA[ select * from(select rownum rn, sub.* from(select * from board b 
+	order by boardNum asc) sub where rownum <= #{page} * #{perPageNum} and boardEtc1 = '공지사항' order by boardNum desc)
+	where rn >= ( #{page}-1 ) * #{perPageNum} +1 ]]>
+	</select>
+
+	<select id="noticeCount" resultType="int">
+		select count(boardNum) bCount from board where boardEtc1='공지사항'
+	</select>
+	
+	<select id="selectQna" resultType="com.human.domain.BoardProductDto">
+	<![CDATA[ select * from(select rownum rn, sub.* from(select * from board b left join products p 
+						on b.productID=p.productID order by boardNum desc) sub 
+						where rownum <= #{page} * #{perPageNum} and customerID = #{customerID} 
+						and boardEtc1='상품문의' order by boardNum desc)
+						where rn >= ( #{page} - 1 ) * #{perPageNum} +1 ]]>
+	</select>
+	
+	<update id="updateQnaList">
+	update board set boardContent=#{boardContent} where boardNum=#{boardNum}
+	</update>
+	
+	<delete id="deleteQnaList">
+	delete board where boardNum=#{boardNum}
+	</delete>
+	
+	<select id="searchSelect" resultType="com.human.domain.QnaDto">
+	<![CDATA[ select * from (select rownum rn,sub.boardNum,sub.boardOption,sub.boardAnswered,sub.boardTitle,
+						sub.CustomerID,sub.boardDate,sub.boardContent,sub.boardHit,
+						sub.boardGroup,sub.boardStep,sub.boardIndent,sub.boardDel,sub.ProductID,sub.boardEtc1 
+						from (select * from board where ProductID=#{productId} and boardStep=0 
+						order by boardNum desc) sub where rownum <= #{page} * #{pageDataCount} and #{searchCol} like '%%%'||#{searchVal}||'%%' and boardetc1='상품문의' ) 
+						where rn >= ( #{page} - 1 ) * #{pageDataCount} + 1	]]>
+	</select>
+	
+	<select id="qnadataCount" resultType="int">
+	select count(boardNum) bCount from board where ProductID = #{productId} and #{searchCol} like '%%%'||#{searchVal}||'%%' and boardstep=0 
+	</select>
+</mapper>

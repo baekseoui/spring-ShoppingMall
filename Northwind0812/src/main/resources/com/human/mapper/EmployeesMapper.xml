@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.mapper.EmployeesMapper">
+<insert id="insert">
+		insert into employees values(#{employeeid},#{lastname},#{firstname},
+		#{title},#{titleofcourtesy},#{birthdate},#{hiredate},#{address},#{city},#{region},
+		#{postalcode},#{country},#{homephone},#{extension},#{photo},#{notes},#{reportsto},#{photopath})
+	</insert>
+
+	<update id="update">
+		update employees set
+		lastname=#{lastname},firstname=#{firstname},title=#{title}
+		,titleofcourtesy=#{titleofcourtesy},address=#{address},city=#{city},region=#{region}
+		,postalcode=#{postalcode},country=#{country},homephone=#{homephone},extension=#{extension}
+		,photo=#{photo},notes=#{notes},reportsto=#{reportsto},photopath=#{photopath}
+		where employeeid=#{employeeid}
+	</update>
+
+	<delete id="delete"> delete employees where employeeid=#{employeeid}
+	</delete>
+
+	<select id="listAll" resultType="com.human.domain.EmployeesDto">
+	<![CDATA[ select * from employees]]>
+	</select>
+
+	<select id="listCriteria"
+		resultType="com.human.domain.EmployeesDto">
+	<![CDATA[ select * from (select rownum rn, employees.* from employees 
+				where rownum <= #{page} * #{perPageNum} and employeeid > 0 ) 
+				where rn > (#{page} -1) * #{perPageNum} ]]>
+	</select>
+
+	<select id="countPaging" resultType="int">
+	<![CDATA[ select count(employeeid) from employees where employeeid > 0 ]]>
+	</select>
+
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()"> and employeeid like '%'|| #{keyword}||'%' </if>
+			<if test="searchType == 'c'.toString()"> and firstname like '%'|| #{keyword}||'%' </if>
+		</if>
+	</sql>
+
+	<select id="listSearch"
+		resultType="com.human.domain.EmployeesDto">
+		<![CDATA[ select * from ( select rownum rn, employees.* from employees where 1=1 ]]>
+		<include refid="search" /><!--빈공간없이 사용해야 에러가 없다 -->
+			<![CDATA[ and rownum <= #{page} * #{perPageNum} and employeeid > 0 ) where rn > (#{page} -1) * #{perPageNum} ]]>
+	</select>
+
+
+
+
+	<select id="listSearchCount" resultType="int">
+		<![CDATA[ select count(employeeid) from employees where 1=1 ]]>
+		<include refid="search" />
+		<![CDATA[ and employeeid > 0 ]]>
+	</select>
+
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.mapper.CartMapper">
+
+	<select id="listCart" resultType="com.human.domain.CartVO">
+
+		select * from cart where userID = #{userId}
+
+	</select>
+
+	<delete id="deleteCart">
+
+		delete cart where userId = #{userId}
+
+	</delete>
+
+	<select id="getCart" resultType="com.human.domain.CartVO">
+		select * from cart where
+		userId=#{userId} order by cartId desc
+	</select>
+
+	<insert id="addCart">
+		insert into
+		cart(cartId, userId, productId,
+		productName, quantity, price, picture)
+		values(cart_seq.nextval,
+		#{userId}, #{productId}, #{productName}, #{amount}, #{price},
+		#{picture})
+	</insert>
+	
+	<insert id="insertCart">
+		insert into
+		cart(cartId, userId, productId,
+		productName, quantity, price, picture)
+		values(cart_seq.nextval,
+		#{userId}, #{productId}, #{productName}, #{quantity}, #{price},
+		#{picture})
+	</insert>
+
+	<delete id="deleteCart1">
+		delete cart where
+		cartId=#{cartId}
+	</delete>
+	<update id="updateCart">
+		update cart set quantity=#{quantity} where
+		cartId=#{cartId} and userId=#{userId}
+	</update>
+
+
+</mapper>
